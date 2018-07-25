@@ -33,7 +33,7 @@ with open('main_spec.pdf', mode='rb') as f:
 
     # Get a public URL for the PDF
     Y = dbx.sharing_create_shared_link_with_settings(target)
-    pdfurl = Y.url.split('?')[0]
+    pdfurl = Y.url.split('?')[0] + '?dl=1'
 
     # Post the URL comment to GitHub
     comment = '[Draft PDF of this PR for commit {}]({})'.format(commit, pdfurl)
