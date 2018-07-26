@@ -23,8 +23,8 @@ with open('main_spec.pdf', mode='rb') as f:
     # Connect to Dropbox
     dbx = dropbox.Dropbox(DB_ACCESS_TOKEN)
 
-    # Get the latest git commit hash
-    commit = subprocess.getoutput('git log -n 1 --format="%h"')
+    # Get the commit hash preceding the merge commit
+    commit = subprocess.getoutput('git log -n 1 --format="%h" HEAD^')
     target = '/Travis-CI/openshmem-draft-{}.pdf'.format(commit)
 
     # Upload the PDF
