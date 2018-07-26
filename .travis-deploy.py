@@ -36,7 +36,7 @@ with open('main_spec.pdf', mode='rb') as f:
     pdfurl = Y.url.split('?')[0] + '?dl=1'
 
     # Post the URL comment to GitHub
-    comment = '[Draft PDF of this PR for commit {}]({})'.format(commit, pdfurl)
+    comment = '[Draft PDF of this PR as of commit `{}`]({})'.format(commit, pdfurl)
     headers = {'Authorization': 'Bearer {}'.format(GH_ACCESS_TOKEN)}
     post_url = 'https://api.github.com/repos/{}/issues/{}/comments'.format(
         repo_slug, PR_number)
