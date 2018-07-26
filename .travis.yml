@@ -17,6 +17,7 @@ addons:
       - texlive-fonts-extra
 
 before_install:
+  - git log -n 4
 
 install:
   - pip install dropbox requests
