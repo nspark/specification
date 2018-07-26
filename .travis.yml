@@ -18,6 +18,9 @@ addons:
 
 before_install:
   - git log -n 4
+  - git log -n 1 HEAD^
+  - git log -n 4 --no-merges
+  - git log -n 1 --no-merges
 
 install:
   - pip install dropbox requests
