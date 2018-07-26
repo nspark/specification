@@ -20,24 +20,33 @@ except KeyError:
     exit(0)
 
 with open('main_spec.pdf', mode='rb') as f:
-    # Connect to Dropbox
-    dbx = dropbox.Dropbox(DB_ACCESS_TOKEN)
-
-    # Get the commit hash preceding the merge commit
+    # Get the latest non-merge commit hash
     commit = subprocess.getoutput('git log -n 1 --format="%h" --no-merges')
     target = '/Travis-CI/openshmem-draft-{}.pdf'.format(commit)
 
-    # Upload the PDF
-    X = dbx.files_upload(f.read(), target,
-                         mode=dropbox.files.WriteMode('overwrite', None))
+    # Upload and share the PDF
+    try:
+        # Connect to Dropbox
+        dbx = dropbox.Dropbox(DB_ACCESS_TOKEN)
 
-    # Get a public URL for the PDF
-    Y = dbx.sharing_create_shared_link_with_settings(target)
-    pdfurl = Y.url.split('?')[0] + '?dl=1'
+        # Upload the PDF
+        X = dbx.files_upload(f.read(), target,
+                             mode=dropbox.files.WriteMode('overwrite', None))
+
+        # Get a public URL for the PDF
+        Y = dbx.sharing_create_shared_link_with_settings(target + 'foo')
+        pdfurl = Y.url.split('?')[0] + '?dl=1'
+        comment = '[Draft PDF of this PR as of commit `{}`]({})'.format(commit, pdfurl)
+    except dropbox.exceptions.DropboxException:
+        sys.stderr.write('Failed to upload to / share via Dropbox\n')
+        comment = 'Alert @nspark; the OpenSHMEM bot failed'
 
     # Post the URL comment to GitHub
-    comment = '[Draft PDF of this PR as of commit `{}`]({})'.format(commit, pdfurl)
-    headers = {'Authorization': 'Bearer {}'.format(GH_ACCESS_TOKEN)}
-    post_url = 'https://api.github.com/repos/{}/issues/{}/comments'.format(
-        repo_slug, PR_number)
-    print(requests.post(post_url, headers=headers, json={'body': comment}))
+    try:
+        headers = {'Authorization': 'Bearer {}'.format(GH_ACCESS_TOKEN)}
+        post_url = 'https://api.github.com/repos/{}/issues/{}/comments'.format(
+            repo_slug, PR_number)
+        print(requests.post(post_url, headers=headers, json={'body': comment},
+                            timeout=1))
+    except requests.exceptions.RequestException:
+        sys.stderr.write('Failed to post comment to GitHub\n')
