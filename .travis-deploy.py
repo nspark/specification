@@ -34,7 +34,7 @@ with open('main_spec.pdf', mode='rb') as f:
                              mode=dropbox.files.WriteMode('overwrite', None))
 
         # Get a public URL for the PDF
-        Y = dbx.sharing_create_shared_link_with_settings(target + 'foo')
+        Y = dbx.sharing_create_shared_link_with_settings(target)
         pdfurl = Y.url.split('?')[0] + '?dl=1'
         comment = '[Draft PDF of this PR as of commit `{}`]({})'.format(commit, pdfurl)
     except dropbox.exceptions.DropboxException:
